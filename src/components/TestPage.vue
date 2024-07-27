@@ -24,6 +24,7 @@
     <div class="feedback-html">
       <pre><code>{{ editorHtml }}</code></pre>
     </div>
+    <button id="saveButton" @click="saveFile">Save</button>
   </section>
 </template>
 
@@ -54,8 +55,44 @@ export default {
     onEditorFocusChange(payload) {
       this.editorFocused = payload;
     },
+    saveFile: async function() {
+      //@ts-ignore
+      const jsonString = JSON.stringify(this.editorJson, null, 2);
+      console.log('MDAS: got jsonString:', jsonString);
+
+      // Check if the File System Access API is supported
+      if ('showSaveFilePicker' in window) {
+        try {
+            // Show the save file picker
+            const fileHandle = await window.showSaveFilePicker({
+                suggestedName: 'octopad-file.json',
+                types: [{
+                    description: 'JSON Files',
+                    accept: {'application/json': ['.json']}
+                }]
+            });
+
+          // Create a writable stream
+          const writableStream = await fileHandle.createWritable();
+
+          // Write the JSON string to the file
+          await writableStream.write(jsonString);
+
+          // Close the file and write the contents to disk
+          await writableStream.close();
+
+          alert('File saved successfully!');
+        } catch (error) {
+          console.error('Error saving file:', error);
+          alert('Failed to save file.');
+        }
+      } else {
+        alert('The File System Access API is not supported in this browser.');
+      }
+    },
   },
 };
+
 </script>
 
 <style scoped>
