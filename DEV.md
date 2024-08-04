@@ -12,4 +12,4 @@ Vue CLI is being used to scaffold the project, think of it less of a cli tool an
 ### File downloads
 When it comes to saving the content locally, we should use the File System API where possible, otherwise, do the horrible \<a\> tag stuff.
 
-Also, add option to save to .odt
+Also, add option to save to .docx and .odt

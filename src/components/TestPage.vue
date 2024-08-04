@@ -11,7 +11,7 @@
         Logo and stuff
       </div>
     </nav>
-    <div class="editor"  :class="{ 'is-focused': editorFocused }">
+    <div class="editor" :class="{ 'is-focused': editorFocused }">
       <Editor
         ref="editorInstance"
         :content="mockData"
@@ -25,7 +25,8 @@
     <div class="feedback-html">
       <pre><code>{{ editorHtml }}</code></pre>
     </div>
-    <button id="saveButton" @click="saveFile">Save</button>
+    <button id="saveButton" @click="saveFile">Save as .json</button>
+    <button id="saveButtonDocx" @click="saveFileDocx">Save as .docx</button>
     <button id="loadButton" @click="loadFile">Load</button>
   </section>
 </template>
@@ -33,6 +34,8 @@
 <script>
 import { mapGetters } from 'vuex';
 import Editor from './Editor.vue';
+import { DOMSerializer } from "prosemirror-model";
+import htmlToDocx from 'html-to-docx';
 
 export default {
   name: 'TestPage',
@@ -78,6 +81,44 @@ export default {
 
           // Write the JSON string to the file
           await writableStream.write(jsonString);
+
+          // Close the file and write the contents to disk
+          await writableStream.close();
+
+          alert('File saved successfully!');
+        } catch (error) {
+          console.error('Error saving file:', error);
+          alert('Failed to save file.');
+        }
+      } else {
+        alert('The File System Access API is not supported in this browser.');
+      }
+    },
+    saveFileDocx: async function() {
+      const fragment = DOMSerializer.fromSchema(this.$refs.editorInstance.editor.schema).serializeFragment(this.$refs.editorInstance.editor.state.doc.content);
+      const div = document.createElement("div");
+      div.appendChild(fragment);
+      //TODO: why are we doing this DOM appending? can I just use the fragment?
+      const contentHtml = div.innerHTML;
+      const docx = await htmlToDocx(contentHtml);
+      console.log(docx);
+      // Check if the File System Access API is supported
+      if ('showSaveFilePicker' in window) {
+        try {
+          // Show the save file picker
+          const fileHandle = await window.showSaveFilePicker({
+              suggestedName: 'octopad-file.docx',
+              types: [{
+                  description: 'DOCX Files',
+                  accept: {'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']}
+              }]
+          });
+
+          // Create a writable stream
+          const writableStream = await fileHandle.createWritable();
+
+          // Write the JSON string to the file
+          await writableStream.write(docx);
 
           // Close the file and write the contents to disk
           await writableStream.close();
