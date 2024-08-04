@@ -131,13 +131,43 @@ export default {
     },
   },
   mounted() {
-    if (this.content) this.editor.setContent(this.content, true);
+    const jsonFromFile = `{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "asdfasdf"
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "whooo"
+        }
+      ]
+    }
+  ]
+}`;
+    //if (this.content) this.editor.setContent(this.content, true);
+    if (this.content) this.editor.setContent(JSON.parse(jsonFromFile), true);
   },
   beforeDestroy() {
     // Always destroy your editor instance when it's no longer needed
     this.editor.destroy();
   },
   methods: {
+    loadJson(json) {
+      if (json) this.editor.setContent(json, true);
+    },
     ...mapMutations(['TOGGLE_ANALYSE_MODE']),
   },
 };

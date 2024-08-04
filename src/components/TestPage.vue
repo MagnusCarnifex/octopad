@@ -11,8 +11,9 @@
         Logo and stuff
       </div>
     </nav>
-    <div class="editor" :class="{ 'is-focused': editorFocused }">
+    <div class="editor"  :class="{ 'is-focused': editorFocused }">
       <Editor
+        ref="editorInstance"
         :content="mockData"
         @updated="onEditorUpdate"
         @focused="onEditorFocusChange"
@@ -25,6 +26,7 @@
       <pre><code>{{ editorHtml }}</code></pre>
     </div>
     <button id="saveButton" @click="saveFile">Save</button>
+    <button id="loadButton" @click="loadFile">Load</button>
   </section>
 </template>
 
@@ -56,9 +58,8 @@ export default {
       this.editorFocused = payload;
     },
     saveFile: async function() {
-      //@ts-ignore
       const jsonString = JSON.stringify(this.editorJson, null, 2);
-      console.log('MDAS: got jsonString:', jsonString);
+      console.log('dbg: got jsonString:', jsonString);
 
       // Check if the File System Access API is supported
       if ('showSaveFilePicker' in window) {
@@ -88,6 +89,39 @@ export default {
         }
       } else {
         alert('The File System Access API is not supported in this browser.');
+      }
+    },
+    loadFile: async function() {
+      // Check if the File System Access API is supported
+      if ('showOpenFilePicker' in window) {
+        try {
+          const [fileHandle] = await window.showOpenFilePicker({
+            types: [
+              {
+                description: 'Text and JSON Files',
+                accept: {
+                  'application/json': ['.json'],
+                  //'text/plain': ['.*'],
+                },
+              },
+            ],
+            multiple: false,
+          });
+
+          // Get the file from the file handle
+          const file = await fileHandle.getFile();
+
+          // Read the file's text
+          const fileContent = await file.text();
+
+          // Parse the JSON content
+          const jsonContent = JSON.parse(fileContent);
+          // TODO: next step is to hook up editorJson as a vuex aware variable, so Editor can run setContent on the prosemirror instance. We may have to update the component to render editorJson as well
+          // TODO: no^ actually, let's have the TestPage, the parent, call a function on this component to setContent on the prosemirror instance. No need to expose the editor's functions outside of the parent scope afaict
+          this.$refs.editorInstance.loadJson(jsonContent);
+        } catch (e) {
+          console.error("Error: failed to read file: ", e);
+        }
       }
     },
   },
