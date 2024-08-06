@@ -18,16 +18,10 @@
         @updated="onEditorUpdate"
         @focused="onEditorFocusChange"
       />
+      <button id="saveButton" @click="saveFile">Save as .json</button>
+      <button id="saveButtonDocx" @click="saveFileDocx">Save as .docx</button>
+      <button id="loadButton" @click="loadFile">Load</button>
     </div>
-    <div class="feedback-json">
-      <pre><code v-html="editorJson"></code></pre>
-    </div>
-    <div class="feedback-html">
-      <pre><code>{{ editorHtml }}</code></pre>
-    </div>
-    <button id="saveButton" @click="saveFile">Save as .json</button>
-    <button id="saveButtonDocx" @click="saveFileDocx">Save as .docx</button>
-    <button id="loadButton" @click="loadFile">Load</button>
   </section>
 </template>
 
@@ -173,7 +167,8 @@ export default {
 <style scoped>
 .grid-container {
   height: 90vh;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   grid-template-columns: 50% 1fr;
   grid-template-rows: min-content 1fr 1fr;
   gap: 1rem;
