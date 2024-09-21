@@ -17,7 +17,8 @@ Consider testing combinations of encryptions/non-encryption, versioning, object 
 ### File downloads
 When it comes to saving the content locally, we should use the File System API where possible, otherwise, do the horrible \<a\> tag stuff. Right now, only File System API is supported, so Firefox is not supported.
 
-Also, add option to save to .docx and .odt
+Also, add option to save to .odt would be nice
 
 ### Chores:
-next: have the text box respond correctly. Have this run in docker so you can run it in windows partition
+next: accept aws creds for bucket writing/retrieval on main webpage, store in localStorage so users don't have to re-enter it all the time.
+eventually: Have this run in docker so users can run it anywhere without setup
