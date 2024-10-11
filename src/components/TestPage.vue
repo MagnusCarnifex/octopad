@@ -12,6 +12,7 @@
       </div>
     </nav>
     <div class="editor" :class="{ 'is-focused': editorFocused }">
+      <div v-if="fileName" class="file-name">Current File: {{ fileName }}</div>
       <Editor
         ref="editorInstance"
         :content="mockData"
@@ -26,25 +27,26 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import Editor from './Editor.vue';
+import { mapGetters } from "vuex";
+import Editor from "./Editor.vue";
 import { DOMSerializer } from "prosemirror-model";
-import htmlToDocx from 'html-to-docx';
+import htmlToDocx from "html-to-docx";
 
 export default {
-  name: 'TestPage',
+  name: "TestPage",
   components: {
-    Editor,
+    Editor
   },
   data() {
     return {
       editorJson: null,
       editorHtml: null,
       editorFocused: false,
+      fileName: ""
     };
   },
   computed: {
-    ...mapGetters(['mockData']),
+    ...mapGetters(["mockData"])
   },
   methods: {
     onEditorUpdate({ json, html }) {
@@ -56,19 +58,21 @@ export default {
     },
     saveFile: async function() {
       const jsonString = JSON.stringify(this.editorJson, null, 2);
-      console.log('dbg: got jsonString:', jsonString);
+      console.log("dbg: got jsonString:", jsonString);
 
       // Check if the File System Access API is supported
-      if ('showSaveFilePicker' in window) {
+      if ("showSaveFilePicker" in window) {
         try {
-            // Show the save file picker
-            const fileHandle = await window.showSaveFilePicker({
-                suggestedName: 'octopad-file.json',
-                types: [{
-                    description: 'JSON Files',
-                    accept: {'application/json': ['.json']}
-                }]
-            });
+          // Show the save file picker
+          const fileHandle = await window.showSaveFilePicker({
+            suggestedName: "octopad-file.json",
+            types: [
+              {
+                description: "JSON Files",
+                accept: { "application/json": [".json"] }
+              }
+            ]
+          });
 
           // Create a writable stream
           const writableStream = await fileHandle.createWritable();
@@ -79,17 +83,19 @@ export default {
           // Close the file and write the contents to disk
           await writableStream.close();
 
-          alert('File saved successfully!');
+          alert("File saved successfully!");
         } catch (error) {
-          console.error('Error saving file:', error);
-          alert('Failed to save file.');
+          console.error("Error saving file:", error);
+          alert("Failed to save file.");
         }
       } else {
-        alert('The File System Access API is not supported in this browser.');
+        alert("The File System Access API is not supported in this browser.");
       }
     },
     saveFileDocx: async function() {
-      const fragment = DOMSerializer.fromSchema(this.$refs.editorInstance.editor.schema).serializeFragment(this.$refs.editorInstance.editor.state.doc.content);
+      const fragment = DOMSerializer.fromSchema(
+        this.$refs.editorInstance.editor.schema
+      ).serializeFragment(this.$refs.editorInstance.editor.state.doc.content);
       const div = document.createElement("div");
       div.appendChild(fragment);
       //TODO: why are we doing this DOM appending? can I just use the fragment?
@@ -97,15 +103,21 @@ export default {
       const docx = await htmlToDocx(contentHtml);
       console.log(docx);
       // Check if the File System Access API is supported
-      if ('showSaveFilePicker' in window) {
+      if ("showSaveFilePicker" in window) {
         try {
           // Show the save file picker
           const fileHandle = await window.showSaveFilePicker({
-              suggestedName: 'octopad-file.docx',
-              types: [{
-                  description: 'DOCX Files',
-                  accept: {'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']}
-              }]
+            suggestedName: "octopad-file.docx",
+            types: [
+              {
+                description: "DOCX Files",
+                accept: {
+                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+                    ".docx"
+                  ]
+                }
+              }
+            ]
           });
 
           // Create a writable stream
@@ -117,34 +129,37 @@ export default {
           // Close the file and write the contents to disk
           await writableStream.close();
 
-          alert('File saved successfully!');
+          alert("File saved successfully!");
         } catch (error) {
-          console.error('Error saving file:', error);
-          alert('Failed to save file.');
+          console.error("Error saving file:", error);
+          alert("Failed to save file.");
         }
       } else {
-        alert('The File System Access API is not supported in this browser.');
+        alert("The File System Access API is not supported in this browser.");
       }
     },
     loadFile: async function() {
       // Check if the File System Access API is supported
-      if ('showOpenFilePicker' in window) {
+      if ("showOpenFilePicker" in window) {
         try {
           const [fileHandle] = await window.showOpenFilePicker({
             types: [
               {
-                description: 'Text and JSON Files',
+                description: "Text and JSON Files",
                 accept: {
-                  'application/json': ['.json'],
+                  "application/json": [".json"]
                   //'text/plain': ['.*'],
-                },
-              },
+                }
+              }
             ],
-            multiple: false,
+            multiple: false
           });
 
           // Get the file from the file handle
           const file = await fileHandle.getFile();
+
+          // Store the file name
+          this.fileName = file.name;
 
           // Read the file's text
           const fileContent = await file.text();
@@ -158,10 +173,9 @@ export default {
           console.error("Error: failed to read file: ", e);
         }
       }
-    },
-  },
+    }
+  }
 };
-
 </script>
 
 <style scoped>
@@ -173,9 +187,9 @@ export default {
   grid-template-rows: min-content 1fr 1fr;
   gap: 1rem;
   grid-template-areas:
-    'nav nav'
-    'editor feedback-json'
-    'editor feedback-html';
+    "nav nav"
+    "editor feedback-json"
+    "editor feedback-html";
   padding: 1rem;
 }
 .nav {
@@ -211,6 +225,11 @@ export default {
   overflow: auto;
   border: 1px dashed burlywood;
   background-color: #f5f5f5;
+}
+
+.file-name {
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 .feedback-json pre,
