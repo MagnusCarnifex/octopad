@@ -63,9 +63,10 @@ export default {
       // Check if the File System Access API is supported
       if ("showSaveFilePicker" in window) {
         try {
+          // Use the stored fileName if available, otherwise use a default name
           // Show the save file picker
           const fileHandle = await window.showSaveFilePicker({
-            suggestedName: "octopad-file.json",
+            suggestedName: this.fileName ? this.fileName : "octopad-file.json",
             types: [
               {
                 description: "JSON Files",
@@ -105,9 +106,20 @@ export default {
       // Check if the File System Access API is supported
       if ("showSaveFilePicker" in window) {
         try {
+          // get the suggested name
+          let suggestedName = this.fileName
+            ? this.fileName
+            : "octopad-file.docx";
+          if (!suggestedName.toLowerCase().endsWith(".docx")) {
+            suggestedName =
+              suggestedName
+                .split(".")
+                .slice(0, -1)
+                .join(".") + ".docx";
+          }
           // Show the save file picker
           const fileHandle = await window.showSaveFilePicker({
-            suggestedName: "octopad-file.docx",
+            suggestedName,
             types: [
               {
                 description: "DOCX Files",
@@ -147,7 +159,10 @@ export default {
               {
                 description: "Text and JSON Files",
                 accept: {
-                  "application/json": [".json"]
+                  "application/json": [".json"],
+                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+                    ".docx"
+                  ]
                   //'text/plain': ['.*'],
                 }
               }
