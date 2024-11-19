@@ -19,6 +19,9 @@ When it comes to saving the content locally, we should use the File System API w
 
 Also, add option to save to .odt would be nice
 
-### Chores:
-next: accept aws creds for bucket writing/retrieval on main webpage, store in localStorage so users don't have to re-enter it all the time.
+### Next Tasks:
+* have the webpage store the text you entered after a reload. Prevents user from losing data if they accidentally close the window. Probably can store in localStorage.
+* have a floating text edit bar (Header, bold, etc). Annoying to scroll up each time.
+* have loadFile handle docx files correctly. Right now, we assume json prior to sending the file to prosemirror
+* accept aws creds for bucket writing/retrieval on main webpage, store in localStorage so users don't have to re-enter it all the time.
 eventually: Have this run in docker so users can run it anywhere without setup
