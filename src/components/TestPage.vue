@@ -22,6 +22,13 @@
       <button id="saveButton" @click="saveFile">Save as .json</button>
       <button id="saveButtonDocx" @click="saveFileDocx">Save as .docx</button>
       <button id="loadButton" @click="loadFile">Load</button>
+      <div>
+        <input v-model="accessKey"/>
+        <input v-model="secretKey"/>
+        <input v-model="path"/>
+        <input v-model="region"/>
+        <button id="uploadToS3" @click="uploadToS3">Upload to S3</button>
+      </div>
     </div>
   </section>
 </template>
@@ -31,6 +38,7 @@ import { mapGetters } from "vuex";
 import Editor from "./Editor.vue";
 import { DOMSerializer } from "prosemirror-model";
 import htmlToDocx from "html-to-docx";
+import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 export default {
   name: "TestPage",
@@ -42,7 +50,11 @@ export default {
       editorJson: null,
       editorHtml: null,
       editorFocused: false,
-      fileName: ""
+      fileName: "",
+      accessKey: "",
+      secretKey: "",
+      path:"",
+      region: "us-east-1",
     };
   },
   computed: {
@@ -187,6 +199,17 @@ export default {
         } catch (e) {
           console.error("Error: failed to read file: ", e);
         }
+      }
+    },
+    uploadToS3: async function(){
+      alert(this.region);
+      const client = new S3Client({ region: this.region });
+      const command = new ListObjectsV2Command({});
+      try {
+        const returnVal = await client.send(command);
+        alert(returnVal);
+      } catch (e) {
+        console.error("got issue here: ", e);
       }
     }
   }
